@@ -2,6 +2,8 @@
 
 return [
 
+    'PDF' => Barryvdh\DomPDF\Facade\Pdf::class::class,
+
     /*
     |--------------------------------------------------------------------------
     | Application Name
@@ -123,6 +125,7 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
     
-   
+    
+
 
 ];
