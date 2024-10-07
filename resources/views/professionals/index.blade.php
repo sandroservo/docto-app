@@ -1,4 +1,4 @@
-<x-app-layout>  
+<x-app-layout>   
     <div class="min-h-screen bg-gray-100 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
         <div class="max-w-7xl mx-auto bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg">
 
@@ -73,16 +73,11 @@
                                     Editar
                                 </a>
 
-                                <form action="{{ route('professionals.destroy', $professional->id) }}" method="POST"
-                                      class="inline-block ml-4">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit"
-                                            class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
-                                            onclick="return confirm('Você tem certeza que deseja excluir este profissional?');">
-                                        Excluir
-                                    </button>
-                                </form>
+                                <button type="button"
+                                        class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 ml-4"
+                                        onclick="openModal({{ $professional->id }});">
+                                    Excluir
+                                </button>
                             </td>
                         </tr>
                     @endforeach
@@ -95,4 +90,35 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal -->
+    <div id="deleteModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 hidden">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg text-center">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Confirmação</h2>
+            <p class="text-gray-700 dark:text-gray-300 mb-6">Tem certeza de que deseja excluir este profissional?</p>
+            <form id="deleteForm" method="POST">
+                @csrf
+                @method('DELETE')
+                <button type="button" onclick="closeModal();"
+                        class="bg-gray-500 text-white px-4 py-2 rounded mr-2 hover:bg-gray-600">Cancelar</button>
+                <button type="submit"
+                        class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Excluir</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        function openModal(id) {
+            const modal = document.getElementById('deleteModal');
+            const deleteForm = document.getElementById('deleteForm');
+            deleteForm.action = `/professionals/${id}`;
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('deleteModal');
+            modal.classList.add('hidden');
+        }
+    </script>
 </x-app-layout>

@@ -2,7 +2,7 @@
 
 return [
 
-    'PDF' => Barryvdh\DomPDF\Facade\Pdf::class::class,
+    //'PDF' => Barryvdh\DomPDF\Facade\Pdf::class::class,
 
     /*
     |--------------------------------------------------------------------------
