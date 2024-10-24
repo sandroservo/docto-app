@@ -80,7 +80,7 @@ return new class extends Migration
             $table->string('anesthesia', 2)->nullable();; // RA, S, GE, I, E (use an enum in the model)
 
             // Other professionals involved
-            $table->integer('apgar')->nullable();
+            $table->string('apgar')->nullable();
 
             // End time and ligation
             $table->time('end_time')->nullable();

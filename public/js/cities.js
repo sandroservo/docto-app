@@ -2,9 +2,8 @@ document.addEventListener('DOMContentLoaded', function() {
     var stateSelect = document.getElementById('state_id');
     var citySelect = document.getElementById('citie_id');
 
-    stateSelect.addEventListener('change', function() {
-        var stateId = stateSelect.value;
-
+    // Função para carregar as cidades via AJAX
+    function populateCities(stateId) {
         // Limpa o dropdown de cidades
         citySelect.innerHTML = '<option value="">Selecione uma cidade</option>';
 
@@ -20,6 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         var option = document.createElement('option');
                         option.value = city.id;
                         option.textContent = city.name;
+
                         citySelect.appendChild(option);
                     });
                 })
@@ -27,5 +27,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.error('Erro ao buscar cidades:', error);
                 });
         }
+    }
+
+    // Quando o estado é alterado, recarrega as cidades
+    stateSelect.addEventListener('change', function() {
+        var stateId = stateSelect.value;
+        populateCities(stateId); // Carrega as cidades com base no estado selecionado
     });
 });

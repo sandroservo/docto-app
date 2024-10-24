@@ -15,30 +15,44 @@ class RelatorioController extends Controller
      */
     public function index(Request $request)
     {
-        // Filtros de data (opcionais)
-        $query = Surgery::query('cirurgiao');
+        // Inicia a query para cirurgias 
+        $query = Surgery::query();
 
-        if ($request->filled('admission_date') && $request->filled('admission_date')) {
-            $query->whereBetween('date', [$request->admission_date, $request->admission_date]);
+        // Aplica os filtros de data, se fornecidos
+        if ($request->filled('data_inicio') && $request->filled('data_fim')) {
+            $query->whereBetween('date', [$request->input('data_inicio'), $request->input('data_fim')]);
+        } elseif ($request->filled('data_inicio')) {
+            $query->where('date', '>=', $request->input('data_inicio'));
+        } elseif ($request->filled('data_fim')) {
+            $query->where('date', '<=', $request->input('data_fim'));
         }
 
-        $surgeries = $query->paginate(10); // Paginação de 10 cirurgias por página
+        // Ordena os resultados em ordem decrescente pelo campo `id`
+        $surgeries = $query->orderByDesc('id')->paginate(10); // Paginação de 10 cirurgias por página
 
         return view('relatorio.index', compact('surgeries'));
     }
 
+
+
+
     public function gerarPdf()
     {
-        // Carregar as cirurgias (carregar a relação cirurgião também)
-        $surgeries = Surgery::with('cirurgiao','surgery_type')->get();
+        // Carregar as cirurgias em ordem decrescente e com os relacionamentos necessários
+        $surgeries = Surgery::with('cirurgiao', 'surgery_type')
+            ->orderByDesc('date') // Substitua `date` pelo campo relevante para a ordenação
+            ->get();
 
         // Carregar a view de PDF e passar os dados
         $pdf = PDF::loadView('relatorio.pdf', compact('surgeries'))
-        ->setPaper('a4', 'landscape'); // Define o papel como A4 e orientação paisagem
+            ->setPaper('a4', 'landscape'); // Define o papel como A4 e orientação paisagem
 
         // Retornar o PDF para download
         return $pdf->stream('relatorio_cirurgias.pdf');
     }
+
+
+
 
     public function gerarPdfCirurgia($id)
     {

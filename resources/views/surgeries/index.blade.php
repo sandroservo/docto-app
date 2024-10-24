@@ -46,23 +46,45 @@
                                     </thead>
                                     <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                         @foreach($surgeryRecord as $record)
+                                            @php
+                                                $isAfterSixPM = false; // Valor padrão
+                                    
+                                                // Verificar se o campo 'time' existe e se está no formato correto
+                                                if (!empty($record->time)) {
+                                                    try {
+                                                        // Converter para Carbon com o formato correto de horas, minutos e segundos
+                                                        $surgeryTime = \Carbon\Carbon::createFromFormat('H:i:s', $record->time);
+                                    
+                                                        // Verificar se o horário é após as 18:00 (6 PM)
+                                                        $isAfterSixPM = $surgeryTime->gte(\Carbon\Carbon::createFromTime(18, 0));
+                                                    } catch (\Exception $e) {
+                                                        // Se houver exceção, define o valor como falso
+                                                        $isAfterSixPM = false;
+                                                    }
+                                                }
+                                            @endphp
                                             <tr>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{{ $record->id }}</td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ $record->name }}</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{{ \Carbon\Carbon::parse($record->data)->format('d/m/Y') }}</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{{ $record->time }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{{ ($record->date)->format('d/m/Y') }}</td>
+                                                
+                                                <!-- Aplica a cor vermelha se a cirurgia for após as 18:00 -->
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm {{ $isAfterSixPM ? 'text-red-500 dark:text-red-400' : 'text-gray-500 dark:text-gray-300' }}">
+                                                    {{ $record->time }}
+                                                </td>
+                                    
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{{ $record->city ? $record->city->name : 'Cidade não definida' }}</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ $record->state ? $record->state->name : 'Cidade não definida' }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ $record->state ? $record->state->name : 'Estado não definido' }}</td>
                                                 
                                                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                                     <a href="{{ route('surgeries.report', $record->id) }}" class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-500 mr-4">
                                                         <i class="fas fa-file-pdf"></i> Detalhes
                                                     </a>
                                                     <a href="{{ route('surgeries.edit', $record->id) }}" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-500 mr-4">Editar</a>
-                                                    
+                                    
                                                     <!-- Botão de exclusão com modal -->
                                                     <button onclick="openModal({{ $record->id }})" class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-500">Excluir</button>
-
+                                    
                                                     <!-- Formulário oculto de exclusão -->
                                                     <form id="delete-form-{{ $record->id }}" action="{{ route('surgeries.destroy', $record->id) }}" method="POST" class="hidden">
                                                         @csrf
@@ -72,6 +94,9 @@
                                             </tr>
                                         @endforeach
                                     </tbody>
+                                    
+                                    
+                                    
                                 </table>
                             </div>
 

@@ -92,7 +92,7 @@
     </div>
 
     <!-- Modal -->
-    <div id="deleteModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 hidden">
+    <div id="deleteModal" class="fixed inset-0  items-center justify-center bg-gray-900 bg-opacity-75 hidden">
         <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg text-center">
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Confirmação</h2>
             <p class="text-gray-700 dark:text-gray-300 mb-6">Tem certeza de que deseja excluir este profissional?</p>

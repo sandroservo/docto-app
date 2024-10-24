@@ -347,17 +347,41 @@
                     <div>
                         <x-input-label for="apgar" :value="__('Apgar')" class="dark:text-gray-300" />
                         <select id="apgar" name="apgar"
-                            class="block mt-1 w-full dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600"
-                            >
+                            class="block mt-1 w-full dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600">
                             <option value="">-- Selecione --</option>
+
+                            <!-- Opções numéricas geradas pelo loop -->
                             @for ($i = 1; $i <= 10; $i++)
                                 <option value="{{ $i }}"
-                                    {{ old('apgar', $surgery->apgar ?? '') == $i ? 'selected' : '' }}>
+                                    {{ old('apgar', $surgeryRecord->apgar ?? '') == $i ? 'selected' : '' }}>
                                     {{ $i }}
                                 </option>
                             @endfor
+
+                            <!-- Opções adicionais -->
+                            <option value="FM"
+                                {{ old('apgar', $surgeryRecord->apgar ?? '') == 'FM' ? 'selected' : '' }}>FM</option>
+                            <option value="1M"
+                                {{ old('apgar', $surgeryRecord->apgar ?? '') == '1M' ? 'selected' : '' }}>1M</option>
+                            <option value="2M"
+                                {{ old('apgar', $surgeryRecord->apgar ?? '') == '2M' ? 'selected' : '' }}>2M</option>
+                            <option value="3M"
+                                {{ old('apgar', $surgeryRecord->apgar ?? '') == '3M' ? 'selected' : '' }}>3M</option>
+                            <option value="4M"
+                                {{ old('apgar', $surgeryRecord->apgar ?? '') == '4M' ? 'selected' : '' }}>4M</option>
+                            <option value="5M"
+                                {{ old('apgar', $surgeryRecord->apgar ?? '') == '5M' ? 'selected' : '' }}>5M</option>
+                            <option value="6M"
+                                {{ old('apgar', $surgeryRecord->apgar ?? '') == '6M' ? 'selected' : '' }}>6M</option>
+                            <option value="7M"
+                                {{ old('apgar', $surgeryRecord->apgar ?? '') == '7M' ? 'selected' : '' }}>7M</option>
+                            <option value="8M"
+                                {{ old('apgar', $surgeryRecord->apgar ?? '') == '8M' ? 'selected' : '' }}>8M</option>
+                            <option value="9M"
+                                {{ old('apgar', $surgeryRecord->apgar ?? '') == '9M' ? 'selected' : '' }}>9M</option>
+
+
                         </select>
-                        <x-input-error :messages="$errors->get('apgar')" class="mt-2 dark:text-red-400" />
                     </div>
                     <!-- Ligadura -->
                     <!-- Ligadura -->
@@ -374,11 +398,12 @@
                     <!-- Social -->
                     <div>
                         <x-input-label for="social_status" :value="__('Social')" class="dark:text-gray-300" />
-                        <select id="social_status" name="social_status" class="block mt-1 w-full dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600" required>
+                        <select id="social_status" name="social_status" class="block mt-1 w-full dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600">
                             <option value="">-- Selecione --</option>
                             <option value="A" {{ old('social_status', $surgery->social_status ?? '') == 'A' ? 'selected' : '' }}>Alta</option>
                             <option value="M" {{ old('social_status', $surgery->social_status ?? '') == 'M' ? 'selected' : '' }}>Média</option>
                             <option value="B" {{ old('social_status', $surgery->social_status ?? '') == 'B' ? 'selected' : '' }}>Baixa</option>
+                            <option value="ND" {{ old('social_status', $surgery->social_status ?? '') == 'ND' ? 'selected' : '' }}>Não definido</option>
                         </select>
                         <x-input-error :messages="$errors->get('social_status')" class="mt-2 dark:text-red-400" />
                     </div>

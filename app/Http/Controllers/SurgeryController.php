@@ -45,14 +45,17 @@ class SurgeryController extends Controller
         return view('surgeries.index', compact('surgeryRecord'));
     }
 
-    public function getCities($state)
+    public function getCities($id)
     {
         // Buscar as cidades relacionadas ao estado selecionado
-        $cities = City::where('state', $state)->get();
+    // Supondo que 'state_id' seja a chave estrangeira na tabela cities
+    $cities = City::where('state', $id)->get(['id', 'name']);
 
-        // Retornar as cidades em formato JSON
-        return response()->json($cities);
+    // Retornar as cidades em formato JSON
+    return response()->json($cities);
     }
+
+    
 
     public function report($id)
 
@@ -69,39 +72,8 @@ class SurgeryController extends Controller
 
         // Retornar a view do relatório com os dados
         return view('surgeries.report', compact('surgeryRecord', 'anestesista', 'cirurgiao', 'pediatra', 'enfermeiro'));
-        //         // Buscar a cirurgia e carregar as relações
-        //         $surgeryRecord = Surgery::with([
-        //             'user',          // Relacionamento com o usuário
-        //             'state',
-        //             'anestesista', 'cirurgiao', 'pediatra', 'enfermeiro',         // Relacionamento com o estado
-        //             'city',          // Relacionamento com a cidade
-        //             'professional',  // Relacionamento com o profissional
-        //             'surgery_type',  // Relacionamento com o tipo de cirurgia
-        //             'indication'     // Relacionamento com a indicação
-        //         ])->findOrFail($id);
-        //         $professionals = Professional::all();
-        //         $anestesista=Surgery::where('id',$id);
-        // //dd($anestesista);
-        //         // Gerar o PDF
-        //         $pdf = PDF::loadView('surgeries.report', compact('surgeryRecord','anestesista','professionals'));
-
-        //         // Retornar o PDF para o download
-        //         return $pdf->stream('relatorio_cirurgia_'.$surgeryRecord->id.'.pdf');
+        
     }
-
-    public function exportPdf()
-    {
-        // Recupera todas as cirurgias do banco de dados
-        $surgeries = Surgery::all();
-
-        // Gera o PDF com a view 'surgeries.pdf' e passa as cirurgias
-        //$pdf = PDF::loadView('surgeries.pdf', compact('surgeries'));
-
-        // Retorna o PDF para ser baixado
-        //return $pdf->stream('cirurgias.pdf');
-    }
-
-
 
 
     /**
@@ -114,8 +86,9 @@ class SurgeryController extends Controller
         $users = User::all();
         $states = State::all();
         $cities = City::all(); // Buscar todas as cidades
-        $indications = Indication::all(); // Buscar todas as cidades
-        $surgery_types = Surgery_type::all();
+        //$indications = Indication::all(); // Buscar todas as cidades
+        $indications = Indication::orderBy('descricao', 'asc')->get();
+        $surgery_types = Surgery_type::orderBy('descricao', 'asc')->get();
         $professionals = Professional::all();
         //dd($professionals);
         // Carregar cirurgias com suas relações e paginar os resultados
@@ -171,38 +144,34 @@ class SurgeryController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'date' => 'required|date|before_or_equal:today',
+            'date' => 'required|date',
             'time' => 'required|date_format:H:i',
             'name' => 'required|string|max:255',
             'age' => 'required|string|max:3', // Liste todas as idades possíveis aqui
             'state_id' => 'required|exists:states,id',
             'citie_id' => 'required|exists:cities,id',
             'medical_record' => 'required|string|max:50',
-            'origin_department' => 'required|string|max:255',
-            'indication_id' => 'required|exists:indications,id',
-            'anestesista_id' => 'required|exists:professionals,id',
-            'cirurgiao_id' => 'required|exists:professionals,id',
+            'origin_department' => 'nullable|string|max:255',
+            'indication_id' => 'nullable|exists:indications,id',
+            'anestesista_id' => 'nullable|exists:professionals,id',
+            'cirurgiao_id' => 'nullable|exists:professionals,id',
 
-            // 'pediatra_id' => 'required|exists:professionals,id',
+            'pediatra_id' => 'nullable|exists:professionals,id',
 
-            'enfermeiro_id' => 'required|exists:professionals,id',
+            'enfermeiro_id' => 'nullable|exists:professionals,id',
             'anesthesia' => 'required|string|max:255',
             'surgery_id' => 'required|exists:surgery_types,id',
-            'admission_date' => 'required|date|before_or_equal:today',
+            'admission_date' => 'required|date',
             'admission_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after_or_equal:admission_time',
+            'end_time' => 'required|date_format:H:i',
 
-            // 'apgar' => 'required|integer|min:0|max:10',
-            // 'ligadura' => 'required|boolean',
-            // 'social_status' => 'string|max:50',
+            'apgar' => 'nullable|string|max:255',
+            'ligadura' => 'nullable|boolean',
+            'social_status' => 'nullable|string|max:50',
         ]);
 
 
-        //dd($request->all());
-        //  Surgery::create($validated);
-
-        //  // Retorna a view ou redireciona
-        //  return redirect()->route('surgeries.index')->with('success', 'Cadastro realizado com sucesso!');
+        
         $request->user()->surgeries()->create($validated);
         //dd($validated);
         return to_route('surgeries.index')->with('success', 'Cirurgia cadastrada com sucesso!');
@@ -224,9 +193,9 @@ class SurgeryController extends Controller
 
     {
 
-        $this->authorize('update', $surgery);
+        //$this->authorize('update', $surgery);
 
-
+        
         // Carrega todos os usuários, estados, profissionais, tipos de cirurgia, etc.
         $users = User::all();
         $states = State::all();
@@ -243,50 +212,12 @@ class SurgeryController extends Controller
     }
 
 
-    /**
-     * Update the specified resource in storage.
-     */
-//     public function update(Request $request, Surgery $surgery)
-//     {
-//         // Remova a linha do authorize se não estiver utilizando Policies.
-//         $this->authorize('update', $surgery);
-
-
-//         $validated = $request->validate([
-//             'date' => 'required|date',
-//             'time' => 'nullable|date_format:H:i',
-//             'name' => 'required|string|max:255',
-//             'age' => 'required|regex:/^\d{1,2}[dma]$/', // Validação do formato "1d", "2m", "3a"
-//             'state_id' => 'required|exists:states,id',
-//             'citie_id' => 'required|exists:cities,id',
-//             'medical_record' => 'required|string|max:50',
-//             'origin_department' => 'required|string|max:255',
-//             'indication_id' => 'required|exists:indications,id',
-//             'anestesista_id' => 'required|exists:professionals,id',
-//             'cirurgiao_id' => 'required|exists:professionals,id',
-//             // 'pediatra_id' => 'required|exists:professionals,id',
-//             'enfermeiro_id' => 'required|exists:professionals,id',
-//             'anesthesia' => 'required|string|max:255',
-//             'surgery_id' => 'required|exists:surgery_types,id',
-//             'admission_date' => 'required|date',
-//             'admission_time' => 'nullable|date_format:H:i',
-//             'end_time' => 'nullable|date_format:H:i',
-//             // 'apgar' => 'required|integer|min:0|max:10',
-//             'ligation' => 'required|boolean',
-//             'social_status' => 'nullable|string|max:50', // Permitindo null
-//         ]);
-// //dd($validated);
-//         // Atualiza os dados da cirurgia com os valores validados
-//         $surgery->update($validated);
-
-//         // Redireciona para a lista de cirurgias após a atualização
-//         return redirect()->route('surgeries.index')->with('success', 'Cirurgia atualizada com sucesso!');
-//     }
+    
 
 public function update(Request $request, Surgery $surgery)
 {
     // Remova a linha do authorize se não estiver utilizando Policies.
-    $this->authorize('update', $surgery);
+    //$this->authorize('update', $surgery);
 
     // Formatar admission_time e end_time antes da validação, se estiverem preenchidos
     if ($request->filled('time')) {
@@ -326,7 +257,7 @@ public function update(Request $request, Surgery $surgery)
         'admission_date' => 'required|date',
         'admission_time' => 'nullable|date_format:H:i',
         'end_time' => 'nullable|date_format:H:i',
-        'apgar' => 'required|integer|min:0|max:10', // Descomentado caso necessário
+        'apgar' => 'nullable|integer|min:0|max:10', // Descomentado caso necessário
         'ligation' => 'required|boolean',
         'social_status' => 'nullable|string|max:50', // Permitindo null
     ]);

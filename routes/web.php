@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\ChartController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfessionalController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Register;
@@ -24,6 +25,10 @@ Route::get('/dashboard',  function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+// Route::get('/surgeries/bi',  function () {
+//     return view('bi.index');
+// })->middleware(['auth', 'verified'])->name('bi.index');
+
 Route::resource('/surgeries', SurgeryController::class)
     ->only(['index', 'store', 'edit', 'create', 'update', 'destroy'])
     ->middleware(['auth', 'verified']);
@@ -37,6 +42,8 @@ Route::get('/get-cities/{state_id}', [SurgeryController::class, 'getCities'])->n
 
 Route::get('surgeries/{id}/report', [SurgeryController::class, 'report'])->name('surgeries.report');
 Route::get('/surgeries/relatorio', [RelatorioController::class, 'index'])->name('relatorio.index');
+
+Route::get('/surgeries/bi', [DashboardController::class, 'index'])->name('bi.index');
 Route::get('/relatorio/cirurgias/pdf', [RelatorioController::class, 'gerarPdf'])->name('relatorio.pdf');
 Route::get('/relatorio/cirurgia/{id}/pdf', [RelatorioController::class, 'gerarPdfCirurgia'])->name('relatorio.cirurgia.pdf');
 
